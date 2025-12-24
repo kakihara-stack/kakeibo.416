@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家計簿アプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 家計簿管理</h1>
+            <p>週刊、月間、年間の支出を比較・管理</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+            <button class="tab-btn" data-tab="input">入力</button>
+            <button class="tab-btn" data-tab="weekly">週間</button>
+            <button class="tab-btn" data-tab="monthly">月間</button>
+            <button class="tab-btn" data-tab="yearly">年間</button>
+        </nav>
+
+        <!-- ダッシュボードタブ -->
+        <div id="dashboard" class="tab-content active">
+            <h2>📊 支出ダッシュボード</h2>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-label">📅 今月の支出</div>
+                    <div class="card-amount" id="monthTotal">¥0</div>
+                    <div class="card-subtitle">先月比：<span id="monthComparison">-</span></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-label">📆 今週の支出</div>
+                    <div class="card-amount" id="weekTotal">¥0</div>
+                    <div class="card-subtitle">先週比：<span id="weekComparison">-</span></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-label">🎯 今年の支出</div>
+                    <div class="card-amount" id="yearTotal">¥0</div>
+                    <div class="card-subtitle">1日平均：<span id="dailyAverage">¥0</span></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-label">💳 データ件数</div>
+                    <div class="card-amount" id="totalItems">0</div>
+                    <div class="card-subtitle">支出記録</div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>📈 カテゴリ別支出（今月）</h3>
+                <div id="dashboardCategoryChart" class="chart-container"></div>
+                <table id="dashboardCategoryTable" class="data-table" style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>カテゴリ</th>
+                            <th>金額</th>
+                            <th>割合</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardCategoryBody"></tbody>
+                </table>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>💰 最近の支出（10件）</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>カテゴリ</th>
+                            <th>金額</th>
+                            <th>説明</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboardRecentTable"></tbody>
+                </table>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>📊 月別推移（今年）</h3>
+                <div id="dashboardTrendChart" class="chart-container"></div>
+            </div>
+        </div>
+        <div id="input" class="tab-content active">
+            <div class="form-group">
+                <h2>支出を追加</h2>
+                
+                <div class="receipt-upload">
+                    <h3>📸 レシート画像から自動入力</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <p>📷 ここに画像をドラッグ＆ドロップするか、クリックして選択</p>
+                        <input type="file" id="receiptImage" accept="image/*" style="display: none;">
+                    </div>
+                    <div id="processingStatus" style="display: none;">
+                        <p>⏳ レシートを解析中...</p>
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                    </div>
+                    <div id="receiptResults" style="display: none;">
+                        <h4>📋 認識された商品</h4>
+                        <table id="receiptItemsTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>選択</th>
+                                    <th>商品名</th>
+                                    <th>金額</th>
+                                    <th>カテゴリ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receiptItemsList"></tbody>
+                        </table>
+                        <div style="margin-top: 15px;">
+                            <button id="addSelectedItems" class="btn">選択した項目を追加</button>
+                            <button id="clearReceiptResults" class="btn" style="background: #999; margin-left: 10px;">クリア</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">または手動入力</h3>
+                <form id="expenseForm">
+                    <div class="form-row">
+                        <input type="date" id="date" required>
+                        <select id="category" required>
+                            <option value="">カテゴリを選択</option>
+                            <option value="食費">🍽️ 食費</option>
+                            <option value="交通費">🚗 交通費</option>
+                            <option value="娯楽">🎬 娯楽</option>
+                            <option value="光熱費">💡 光熱費</option>
+                            <option value="通信費">📱 通信費</option>
+                            <option value="日用品">🛒 日用品</option>
+                            <option value="医療費">🏥 医療費</option>
+                            <option value="衣類">👔 衣類</option>
+                            <option value="教育">📚 教育</option>
+                            <option value="その他">📌 その他</option>
+                        </select>
+                        <input type="number" id="amount" placeholder="金額" required step="0.01">
+                        <input type="text" id="description" placeholder="説明（任意）">
+                        <button type="submit" class="btn">追加</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="recent-expenses">
+                <h3>最近の支出</h3>
+                <table id="expenseTable">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th>カテゴリ</th>
+                            <th>金額</th>
+                            <th>説明</th>
+                            <th>削除</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 週間タブ -->
+        <div id="weekly" class="tab-content">
+            <h2>週間支出レポート</h2>
+            <div class="controls">
+                <button id="prevWeek" class="btn">← 前週</button>
+                <span id="weekLabel"></span>
+                <button id="nextWeek" class="btn">次週 →</button>
+            </div>
+            <div id="weeklyChart" class="chart-container"></div>
+            <table id="weeklyTable" class="data-table">
+                <thead>
+                    <tr>
+                        <th>カテゴリ</th>
+                        <th>金額</th>
+                        <th>割合</th>
+                    </tr>
+                </thead>
+                <tbody id="weeklyTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 月間タブ -->
+        <div id="monthly" class="tab-content">
+            <h2>月間支出レポート</h2>
+            <div class="controls">
+                <button id="prevMonth" class="btn">← 前月</button>
+                <span id="monthLabel"></span>
+                <button id="nextMonth" class="btn">次月 →</button>
+            </div>
+            <div id="monthlyChart" class="chart-container"></div>
+            <table id="monthlyTable" class="data-table">
+                <thead>
+                    <tr>
+                        <th>カテゴリ</th>
+                        <th>金額</th>
+                        <th>割合</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 年間タブ -->
+        <div id="yearly" class="tab-content">
+            <h2>年間支出レポート</h2>
+            <div class="controls">
+                <button id="prevYear" class="btn">← 前年</button>
+                <span id="yearLabel"></span>
+                <button id="nextYear" class="btn">次年 →</button>
+            </div>
+            <div id="yearlyChart" class="chart-container"></div>
+            <table id="yearlyTable" class="data-table">
+                <thead>
+                    <tr>
+                        <th>月</th>
+                        <th>金額</th>
+                    </tr>
+                </thead>
+                <tbody id="yearlyTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
