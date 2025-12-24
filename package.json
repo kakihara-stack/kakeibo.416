@@ -2,6 +2,7 @@
   "name": "kakeibo-app",
   "version": "1.0.0",
   "description": "週刊、月間、年間の比較がしやすい家計簿アプリ",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
