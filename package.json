@@ -4,8 +4,14 @@
   "description": "週刊、月間、年間の比較がしやすい家計簿アプリ",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "18.x"
+  }
 }
