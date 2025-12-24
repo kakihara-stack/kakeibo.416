@@ -2,16 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
       "src": "api/**/*.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -20,12 +12,20 @@
       "dest": "/api/$1"
     },
     {
-      "src": "/env-test.html",
-      "dest": "/public/env-test.html"
+      "src": "/favicon.ico",
+      "status": 204
+    },
+    {
+      "src": "/(.*\\.(js|css|json|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|ico))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/index.html"
     }
   ],
   "env": [
