@@ -1,0 +1,273 @@
+// フロントエンド環境変数テストページ
+// public/env-test.html
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>環境変数テスト - 家計簿アプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .status-card {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+
+        .status-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .env-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .env-item:last-child {
+            border-bottom: none;
+        }
+
+        .env-key {
+            font-weight: 600;
+            color: #333;
+            font-family: monospace;
+        }
+
+        .env-value {
+            text-align: right;
+        }
+
+        .status-ok {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .status-ng {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .result {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .error {
+            border-left: 4px solid #f44336;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 環境変数テスト</h1>
+        <p class="subtitle">家計簿アプリ - Supabase接続確認</p>
+
+        <div class="status-card">
+            <h3>📋 設定状況</h3>
+            <div id="envStatus"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="testBackendEnv()">
+                🔍 バックエンド環境変数をテスト
+            </button>
+            <button class="btn-secondary" onclick="location.reload()">
+                🔄 リセット
+            </button>
+        </div>
+
+        <div id="result"></div>
+
+        <div class="info-box">
+            <strong>💡 使用方法:</strong><br>
+            1. 「バックエンド環境変数をテスト」ボタンをクリック<br>
+            2. すべての環境変数が ✅ で表示されたら設定完了<br>
+            3. 問題がある場合は Vercel Settings で確認
+        </div>
+    </div>
+
+    <script>
+        // フロントエンド環境変数の確認
+        function displayFrontendEnv() {
+            const env = {
+                'VITE_SUPABASE_URL': import.meta?.env?.VITE_SUPABASE_URL || 'フロントエンド環境なし',
+                'VITE_SUPABASE_ANON_KEY': import.meta?.env?.VITE_SUPABASE_ANON_KEY ? '✅ 設定済み' : '❌ 未設定',
+            };
+
+            const statusDiv = document.getElementById('envStatus');
+            statusDiv.innerHTML = Object.entries(env).map(([key, value]) => `
+                <div class="env-item">
+                    <span class="env-key">${key}</span>
+                    <span class="env-value ${value.includes('✅') ? 'status-ok' : 'status-ng'}">${value}</span>
+                </div>
+            `).join('');
+        }
+
+        // バックエンド環境変数テスト
+        async function testBackendEnv() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>テスト中...</div>';
+
+            try {
+                const response = await fetch('/api/test-env');
+                const data = await response.json();
+
+                const allSet = data.environment.allSet;
+                const statusClass = allSet ? 'success' : 'error';
+
+                resultDiv.innerHTML = `
+                    <div class="result ${statusClass}">
+${JSON.stringify(data, null, 2)}
+                    </div>
+                    <div class="info-box" style="margin-top: 15px;">
+                        ${allSet 
+                            ? '✅ <strong>すべての環境変数が正しく設定されています</strong>' 
+                            : '⚠️ <strong>一部の環境変数が設定されていません</strong><br>Vercel Settings で以下を確認してください：<br>- SUPABASE_URL<br>- SUPABASE_ANON_KEY<br>- SUPABASE_SERVICE_ROLE_KEY'
+                        }
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+エラー: ${error.message}
+
+考えられる原因：
+1. バックエンド API が存在しない (/api/test-env)
+2. CORS エラー
+3. Vercel デプロイがまだ完了していない
+
+解決方法：
+1. api/test-env.js ファイルが存在するか確認
+2. Vercel ダッシュボードで最新のデプロイ状態を確認
+3. デプロイ完了後、ページを再読み込み
+                    </div>
+                `;
+            }
+        }
+
+        // 初期化
+        displayFrontendEnv();
+    </script>
+</body>
+</html>
